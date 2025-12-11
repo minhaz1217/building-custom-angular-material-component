@@ -1,11 +1,16 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, Input, OnDestroy } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
   FormsModule,
   ReactiveFormsModule,
+  AbstractControlDirective,
+  NgControl,
 } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatFormFieldControl } from '@angular/material/form-field';
+import { Observable, Subject } from 'rxjs';
+import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 
 class MyTel {
   constructor(
@@ -22,7 +27,9 @@ class MyTel {
   templateUrl: './phone-number-picker.component.html',
   styleUrl: './phone-number-picker.component.css',
 })
-export class PhoneNumberPickerComponent {
+export class PhoneNumberPickerComponent
+  implements MatFormFieldControl<MyTel>, OnDestroy
+{
   parts: FormGroup;
 
   @Input()
@@ -44,6 +51,8 @@ export class PhoneNumberPickerComponent {
       exchange: tel.exchange,
       subscriber: tel.subscriber,
     });
+
+    this.stateChanges.next();
   }
 
   constructor(fb: FormBuilder) {
@@ -52,5 +61,91 @@ export class PhoneNumberPickerComponent {
       exchange: '',
       subscriber: '',
     });
+  }
+
+  stateChanges: Subject<void> = new Subject<void>();
+
+  static nextId = 0;
+  @HostBinding()
+  id = `example-tel-input-${PhoneNumberPickerComponent.nextId++}`;
+
+  @Input()
+  get placeholder(): string {
+    return this._placeholder;
+  }
+  set placeholder(plh) {
+    this._placeholder = plh;
+    this.stateChanges.next();
+  }
+
+  private _placeholder: string = '';
+
+  ngControl: NgControl | AbstractControlDirective | null = null;
+  focused: boolean;
+
+  onFocusIn(event: FocusEvent) {
+    if (!this.focused) {
+      this.focused = true;
+      this.stateChanges.next();
+    }
+  }
+
+  onFocusOut(event: FocusEvent) {
+    if (
+      !this._elementRef.nativeElement.contains(event.relatedTarget as Element)
+    ) {
+      this.touched = true;
+      this.focused = false;
+      this.onTouched();
+      this.stateChanges.next();
+    }
+  }
+
+  get empty(): boolean {
+    let n = this.parts.value;
+    return !n.area && !n.exchange && !n.subscriber;
+  }
+
+  get shouldLabelFloat(): boolean {
+    return this.focused || !this.empty;
+  }
+
+  @Input()
+  get required(): boolean {
+    return this._required;
+  }
+  set required(req: BooleanInput) {
+    this._required = coerceBooleanProperty(req);
+    this.stateChanges.next();
+  }
+  private _required = false;
+
+  @Input()
+  get disabled(): boolean {
+    return this._disabled;
+  }
+  set disabled(value: BooleanInput) {
+    this._disabled = coerceBooleanProperty(value);
+    this._disabled ? this.parts.disable() : this.parts.enable();
+    this.stateChanges.next();
+  }
+  private _disabled = false;
+
+  get errorState(): boolean {
+    return this.parts.invalid && this.touched;
+  }
+  controlType?: string | undefined = 'example-tel-input';
+  autofilled?: boolean | undefined;
+  userAriaDescribedBy?: string | undefined;
+  disableAutomaticLabeling?: boolean | undefined;
+  override setDescribedByIds(ids: string[]): void {
+    throw new Error('Method not implemented.');
+  }
+  override onContainerClick(event: MouseEvent): void {
+    throw new Error('Method not implemented.');
+  }
+
+  ngOnDestroy(): void {
+    this.stateChanges.complete();
   }
 }
