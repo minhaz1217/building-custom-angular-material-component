@@ -1,4 +1,12 @@
-import { Component, HostBinding, Input, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostBinding,
+  inject,
+  Input,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -30,6 +38,8 @@ class MyTel {
 export class PhoneNumberPickerComponent
   implements MatFormFieldControl<MyTel>, OnDestroy
 {
+  private readonly _elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
   parts: FormGroup;
 
   @Input()
@@ -81,8 +91,10 @@ export class PhoneNumberPickerComponent
   private _placeholder: string = '';
 
   ngControl: NgControl | AbstractControlDirective | null = null;
-  focused: boolean;
+  focused: boolean = false;
 
+  touched: boolean = false;
+  onTouched = () => {};
   onFocusIn(event: FocusEvent) {
     if (!this.focused) {
       this.focused = true;
@@ -136,13 +148,18 @@ export class PhoneNumberPickerComponent
   }
   controlType?: string | undefined = 'example-tel-input';
   autofilled?: boolean | undefined;
-  userAriaDescribedBy?: string | undefined;
+  @Input('aria-describedby') userAriaDescribedBy?: string | undefined;
   disableAutomaticLabeling?: boolean | undefined;
-  override setDescribedByIds(ids: string[]): void {
-    throw new Error('Method not implemented.');
+  setDescribedByIds(ids: string[]): void {
+    const controlElement = this._elementRef.nativeElement.querySelector(
+      '.example-tel-input-container'
+    )!;
+    controlElement.setAttribute('aria-describedby', ids.join(' '));
   }
-  override onContainerClick(event: MouseEvent): void {
-    throw new Error('Method not implemented.');
+  onContainerClick(event: MouseEvent): void {
+    if ((event.target as Element).tagName.toLowerCase() != 'input') {
+      this._elementRef.nativeElement.querySelector('input')?.focus();
+    }
   }
 
   ngOnDestroy(): void {
