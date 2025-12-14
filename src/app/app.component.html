@@ -48,7 +48,15 @@
       </svg>
       <h1>Hello, {{ title }}</h1>
       <div style="margin: 16px; border: 1px solid black; padding: 16px">
-        <app-phone-number-picker></app-phone-number-picker>
+        <mat-form-field>
+          <mat-label>Phone number</mat-label>
+          <app-phone-number-picker
+            formControlName="tel"
+            required
+          ></app-phone-number-picker>
+          <mat-icon matSuffix>phone</mat-icon>
+          <mat-hint>Include area code</mat-hint>
+        </mat-form-field>
       </div>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
