@@ -7,7 +7,6 @@ import {
   computed,
   effect,
   ElementRef,
-  forwardRef,
   inject,
   input,
   model,
@@ -35,35 +34,7 @@ import {
 import { Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
-
-@Component({
-  selector: 'form-field-custom-control-example',
-  templateUrl: 'parent-component.html',
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    forwardRef(() => ExampleTelInputComponent),
-    MatIconModule,
-    AsyncPipe,
-    JsonPipe,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
-})
-export class FormFieldCustomControlExample {
-  readonly form = new FormGroup({
-    tel: new FormControl(null),
-  });
-}
-
-export class MyTel {
-  constructor(
-    public area: string,
-    public exchange: string,
-    public subscriber: string
-  ) {}
-}
+import MyTel from './MyTel';
 
 @Component({
   selector: 'app-example-tel-input',
