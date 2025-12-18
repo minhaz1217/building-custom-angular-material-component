@@ -9,9 +9,10 @@ import {
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CommonModule } from '@angular/common';
-import { FormFieldCustomControlExample } from './example-tel-input/example-tel-input.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { ParentExampleTelInputComponent } from './example-tel-input/parent-example-tel-input/parent-example-tel-input.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -22,9 +23,13 @@ import { MatButtonModule } from '@angular/material/button';
     ReactiveFormsModule,
     MatFormFieldModule,
     CommonModule,
-    FormFieldCustomControlExample,
+    ParentExampleTelInputComponent,
     MatSlideToggleModule,
     MatButtonModule,
+    MatIconModule,
+    // forwardRef(() => ExampleTelInputComponent),
+    // AsyncPipe,
+    // JsonPipe,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
